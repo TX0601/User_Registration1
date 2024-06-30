@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Dapper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,51 +20,60 @@ namespace UserRegistration.Data.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public void AddUser(userRegistration user)
+        public IEnumerable<userRegistration> GetAllUsers()
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                var command = new SqlCommand("spAddUser", connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Name", user.Name);
-                command.Parameters.AddWithValue("@Email", user.Email);
-                command.Parameters.AddWithValue("@Phone", user.Phone);
-                command.Parameters.AddWithValue("@Address", user.Address);
-                command.Parameters.AddWithValue("@StateId", user.StateId);
-                command.Parameters.AddWithValue("@CityId", user.CityId);
-                connection.Open();
-                command.ExecuteNonQuery();
+                return connection.Query<userRegistration>("sp_GetAllUsers", commandType: CommandType.StoredProcedure).ToList();
+            }
+        }
+
+        public userRegistration GetUserById(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.QuerySingleOrDefault<userRegistration>("sp_GetUserById", new { Id = id }, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public void InsertUser(userRegistration user)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Execute("sp_InsertUser", new { user.Name, user.Email, user.Phone, user.Address, user.StateId, user.CityId }, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public void UpdateUser(userRegistration user)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Execute("sp_UpdateUser", new { user.Id, user.Name, user.Email, user.Phone, user.Address, user.StateId, user.CityId }, commandType: CommandType.StoredProcedure);
             }
         }
 
         public void DeleteUser(int id)
         {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<userRegistration> GetAllUsers()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<City> GetCitiesByStateId(int stateId)
-        {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Execute("sp_DeleteUser", new { Id = id }, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public IEnumerable<State> GetStates()
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<State>("sp_GetStates", commandType: CommandType.StoredProcedure).ToList();
+            }
         }
 
-        public userRegistration GetUserById(int id)
+        public IEnumerable<City> GetCitiesByStateId(int stateId)
         {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateUser(userRegistration user)
-        {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return connection.Query<City>("sp_GetCitiesByStateId", new { StateId = stateId }, commandType: CommandType.StoredProcedure).ToList();
+            }
         }
     }
 }
