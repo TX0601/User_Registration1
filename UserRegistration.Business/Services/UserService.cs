@@ -17,42 +17,39 @@ namespace UserRegistration.Business.Services
             _userRepository = userRepository;
         }
 
-        public void DeleteUser(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<userRegistration> GetAllUsers()
         {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<City> GetCitiesByStateId(int stateId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<State> GetStates()
-        {
-            throw new NotImplementedException();
+            return _userRepository.GetAllUsers();
         }
 
         public userRegistration GetUserById(int id)
         {
-            throw new NotImplementedException();
+            return _userRepository.GetUserById(id);
         }
 
         public void RegisterUser(userRegistration user)
         {
-            // Business logic for user registration can go here
-            _userRepository.AddUser(user);
+            _userRepository.InsertUser(user);
         }
 
         public void UpdateUser(userRegistration user)
         {
-            throw new NotImplementedException();
+            _userRepository.UpdateUser(user);
         }
 
-        // // Implement other methods similarly
+        public void DeleteUser(int id)
+        {
+            _userRepository.DeleteUser(id);
+        }
+
+        public IEnumerable<State> GetStates()
+        {
+            return _userRepository.GetStates();
+        }
+
+        public IEnumerable<City> GetCitiesByStateId(int stateId)
+        {
+            return _userRepository.GetCitiesByStateId(stateId);
+        }
     }
 }

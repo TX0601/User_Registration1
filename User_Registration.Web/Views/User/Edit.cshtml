@@ -1,0 +1,101 @@
+﻿@model UserRegistration.Data.Models.userRegistration
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h1>Edit User</h1>
+
+<div class="modal" tabindex="-1" role="dialog" id="editModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Edit" method="post" id="editForm">
+                    <div class="form-group">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Phone"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address"></label>
+                        <input asp-for="Address" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="StateId"></label>
+                        <select asp-for="StateId" class="form-control" id="stateSelect">
+                            <option value="">Select State</option>
+                            @foreach (var state in ViewBag.States)
+                            {
+                              //  <option value="@state.Id" @(Model.StateId == state.Id ? "selected" : "")>@state.StateName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="StateId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CityId"></label>
+                        <select asp-for="CityId" class="form-control" id="citySelect">
+                            <option value="">Select City</option>
+                            @foreach (var city in ViewBag.Cities)
+                            {
+                               // <option value="@city.Id" @(Model.CityId == city.Id ? "selected" : "")>@city.CityName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CityId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input asp-for="Agree" class="form-check-input" id="agreeCheckbox" />
+                            <label asp-for="Agree" class="form-check-label"></label>
+                            <span asp-validation-for="Agree" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            $('#stateSelect').change(function() {
+                var stateId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetCities", "User")',
+                    data: { stateId: stateId },
+                    success: function(data) {
+                        var citySelect = $('#citySelect');
+                        citySelect.empty();
+                        citySelect.append('<option value="">Select City</option>');
+                        $.each(data, function(index, city) {
+                            citySelect.append('<option value="' + city.Id + '">' + city.CityName + '</option>');
+                        });
+                    }
+                });
+            });
+
+            $('#editModal').modal('show');
+        });
+    </script>
+}
